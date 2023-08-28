@@ -1,0 +1,13 @@
+menuconfig LIBWEBP
+    bool "libwebp - WebP image format library"
+    depends on LIBNEWLIBC || LIBMUSL_MATH
+    imply LIBINTEL_INTRINSICS if ARCH_X86_64
+    default n
+
+if LIBWEBP
+
+config LIBWEBP_MUX
+    bool "WebP mux/demux support"
+    default y
+
+endif

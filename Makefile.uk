@@ -1,0 +1,231 @@
+#  libwebp Makefile.uk
+#
+#  Authors: Andrei Tatar <andrei@unikraft.io>
+#
+#  Copyright (c) 2023, Unikraft GmbH and The Unikraft Authors.
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#  3. Neither the name of the copyright holder nor the names of its
+#     contributors may be used to endorse or promote products derived from
+#     this software without specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+#  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+#  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+#  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+#  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+#  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+#  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+#  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+#  POSSIBILITY OF SUCH DAMAGE.
+#
+
+################################################################################
+# Library registration
+################################################################################
+$(eval $(call addlib_s,libwebp,$(CONFIG_LIBWEBP)))
+
+################################################################################
+# Sources
+################################################################################
+LIBWEBP_VERSION=1.3.1
+LIBWEBP_URL=https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-$(LIBWEBP_VERSION).tar.gz
+LIBWEBP_DIRNAME=libwebp-$(LIBWEBP_VERSION)
+#LIBWEBP_PATCHDIR=$(LIBWEBP_BASE)/patches
+$(eval $(call fetch,libwebp,$(LIBWEBP_URL)))
+#$(eval $(call patch,libwebp,$(LIBWEBP_PATCHDIR),$(LIBWEBP_DIRNAME)))
+
+################################################################################
+# Helpers
+################################################################################
+LIBWEBP_SRC = $(LIBWEBP_ORIGIN)/$(LIBWEBP_DIRNAME)
+
+################################################################################
+# Library includes
+################################################################################
+# API
+LIBWEBP__API += -I$(LIBWEBP_SRC)/src
+
+CINCLUDES-$(CONFIG_LIBWEBP) += $(LIBWEBP__API)
+CXXINCLUDES-$(CONFIG_LIBWEBP) += $(LIBWEBP__API)
+
+# Internal
+LIBWEBP_CINCLUDES += -iquote$(LIBWEBP_BASE)/include
+LIBWEBP_CINCLUDES += -iquote$(LIBWEBP_BASE)/include/src
+LIBWEBP_CINCLUDES += -I$(LIBWEBP_SRC)
+
+################################################################################
+# Global flags
+################################################################################
+LIBWEBP_CFLAGS += -DHAVE_CONFIG_H
+LIBWEBP_CFLAGS += -fvisibility=hidden
+
+################################################################################
+# Library sources
+################################################################################
+# These are taken from the upstream build in the order that make builds them.
+# Please take care to maintain the order when updating.
+################################################################################
+# libsharpyuv
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/sharpyuv/sharpyuv_cpu.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/sharpyuv/sharpyuv_csp.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/sharpyuv/sharpyuv_dsp.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/sharpyuv/sharpyuv_gamma.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/sharpyuv/sharpyuv.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/sharpyuv/sharpyuv_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/sharpyuv/sharpyuv_neon.c
+
+# libwebpdecode
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dec/alpha_dec.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dec/buffer_dec.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dec/frame_dec.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dec/idec_dec.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dec/io_dec.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dec/quant_dec.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dec/tree_dec.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dec/vp8_dec.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dec/vp8l_dec.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dec/webp_dec.c
+
+# libwebpencode
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/alpha_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/analysis_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/backward_references_cost_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/backward_references_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/config_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/cost_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/filter_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/frame_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/histogram_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/iterator_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/near_lossless_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/picture_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/picture_csp_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/picture_psnr_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/picture_rescale_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/picture_tools_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/predictor_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/quant_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/syntax_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/token_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/tree_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/vp8l_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/enc/webp_enc.c
+
+# libwebpdsp
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/alpha_processing.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/cpu.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/dec.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/dec_clip_tables.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/filters.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/rescaler.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/upsampling.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/yuv.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/cost.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_enc.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/ssim.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/cost_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/enc_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_enc_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/ssim_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/alpha_processing_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/dec_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/filters_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/rescaler_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/upsampling_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/yuv_sse2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/enc_sse41.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_enc_sse41.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/alpha_processing_sse41.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/dec_sse41.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_sse41.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/upsampling_sse41.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/yuv_sse41.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/cost_neon.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/enc_neon.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_enc_neon.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/alpha_processing_neon.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/dec_neon.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/filters_neon.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_neon.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/rescaler_neon.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/upsampling_neon.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/yuv_neon.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/enc_msa.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_enc_msa.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/dec_msa.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/filters_msa.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_msa.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/rescaler_msa.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/upsampling_msa.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/cost_mips32.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/enc_mips32.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_enc_mips32.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/dec_mips32.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/rescaler_mips32.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/yuv_mips32.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/cost_mips_dsp_r2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/enc_mips_dsp_r2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_enc_mips_dsp_r2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/alpha_processing_mips_dsp_r2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/dec_mips_dsp_r2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/filters_mips_dsp_r2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/lossless_mips_dsp_r2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/rescaler_mips_dsp_r2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/upsampling_mips_dsp_r2.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/dsp/yuv_mips_dsp_r2.c
+
+# libwebputils
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/bit_reader_utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/color_cache_utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/filters_utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/huffman_utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/quant_levels_dec_utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/rescaler_utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/random_utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/thread_utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/bit_writer_utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/huffman_encode_utils.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/utils/quant_levels_utils.c
+
+ifeq ($(CONFIG_LIBWEBP_MUX),y)
+# libwebpmux
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/mux/anim_encode.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/mux/muxedit.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/mux/muxinternal.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/mux/muxread.c
+
+# libwebpdemux
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/demux/anim_decode.c
+LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/src/demux/demux.c
+endif
+
+# libimageio_util
+#LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/imageio/imageio_util.c
+
+# libimagedec
+#LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/imageio/image_dec.c
+#LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/imageio/jpegdec.c
+#LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/imageio/metadata.c
+#LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/imageio/pngdec.c
+#LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/imageio/pnmdec.c
+#LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/imageio/tiffdec.c
+#LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/imageio/webpdec.c
+#LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/imageio/wicdec.c
+
+# libimageenc
+#LIBWEBP_SRCS-y += $(LIBWEBP_SRC)/imageio/image_enc.c
